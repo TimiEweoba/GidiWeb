@@ -26,26 +26,26 @@
   --popover: 0 0% 94%;
   --popover-foreground: 0 0% 9%;
   --popover-border: 0 0% 91%;
-  --primary: 154 55% 35%;
-  --primary-foreground: 154 20% 97%;
+  --primary: 154 55% 53%;
+  --primary-foreground: 0 0% 9%;
   --secondary: 0 0% 90%;
   --secondary-foreground: 0 0% 9%;
   --muted: 0 2% 88%;
-  --muted-foreground: 0 0% 35%;
-  --accent: 154 8% 92%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 154 55% 95%;
   --accent-foreground: 0 0% 9%;
   --destructive: 0 72% 41%;
   --destructive-foreground: 0 0% 98%;
   --input: 0 0% 75%;
   --ring: 154 55% 53%;
-  --chart-1: 154 55% 35%;
-  --chart-2: 174 45% 38%;
-  --chart-3: 194 50% 42%;
-  --chart-4: 214 48% 45%;
-  --chart-5: 234 52% 48%;
-  --font-sans: Open Sans, sans-serif;
+  --chart-1: 154 55% 53%;
+  --chart-2: 174 45% 48%;
+  --chart-3: 194 50% 52%;
+  --chart-4: 214 48% 55%;
+  --chart-5: 234 52% 58%;
+  --font-sans: Inter, system-ui, sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
+  --font-mono: Source Code Pro, monospace;
   --radius: .5rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
@@ -93,40 +93,40 @@
   --opaque-button-border-intensity: 9;
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
-  --background: 0 0% 7%;
+  --background: 0 0% 4%;
   --foreground: 0 0% 95%;
-  --border: 0 0% 16%;
-  --card: 0 0% 9%;
+  --border: 0 0% 14%;
+  --card: 0 0% 7%;
   --card-foreground: 0 0% 95%;
-  --card-border: 0 0% 12%;
-  --sidebar: 0 0% 11%;
+  --card-border: 0 0% 10%;
+  --sidebar: 0 0% 8%;
   --sidebar-foreground: 0 0% 95%;
-  --sidebar-border: 0 0% 14%;
+  --sidebar-border: 0 0% 12%;
   --sidebar-primary: 154 55% 53%;
   --sidebar-primary-foreground: 0 0% 9%;
-  --sidebar-accent: 0 0% 15%;
+  --sidebar-accent: 0 0% 12%;
   --sidebar-accent-foreground: 0 0% 95%;
   --sidebar-ring: 154 55% 53%;
-  --popover: 0 0% 13%;
+  --popover: 0 0% 10%;
   --popover-foreground: 0 0% 95%;
-  --popover-border: 0 0% 16%;
-  --primary: 154 55% 32%;
-  --primary-foreground: 154 15% 97%;
-  --secondary: 0 0% 17%;
+  --popover-border: 0 0% 14%;
+  --primary: 154 55% 53%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 12%;
   --secondary-foreground: 0 0% 95%;
-  --muted: 0 2% 19%;
-  --muted-foreground: 0 0% 68%;
-  --accent: 154 6% 18%;
+  --muted: 0 2% 15%;
+  --muted-foreground: 0 0% 65%;
+  --accent: 154 25% 14%;
   --accent-foreground: 0 0% 95%;
-  --destructive: 0 72% 35%;
+  --destructive: 0 72% 45%;
   --destructive-foreground: 0 0% 98%;
-  --input: 0 0% 30%;
+  --input: 0 0% 20%;
   --ring: 154 55% 53%;
-  --chart-1: 154 55% 65%;
-  --chart-2: 174 50% 68%;
-  --chart-3: 194 55% 70%;
-  --chart-4: 214 52% 72%;
-  --chart-5: 234 58% 75%;
+  --chart-1: 154 55% 53%;
+  --chart-2: 174 50% 58%;
+  --chart-3: 194 55% 60%;
+  --chart-4: 214 52% 62%;
+  --chart-5: 234 58% 65%;
   --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-sm: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
@@ -168,6 +168,10 @@
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
