@@ -1,0 +1,194 @@
+Hero & CTAs
+
+Headline:
+GidiGo — AI-powered access to trusted local services
+
+Subheadline:
+Find verified barbers, plumbers, tutors and more — fast. Book, chat, and get matched by our AI assistant, Nia.
+
+Primary CTA (button):
+Reserve Founder Slot — ₦2,000 → {{PAYSTACK_LINK}} (Paystack)
+
+Secondary CTA:
+Join Waitlist (free) → opens email/WhatsApp {{WHATSAPP_INVITE}}
+
+Hero microcopy (beneath CTAs):
+Limited founder slots. Secure your spot now — full refund within 48 hours before launch.
+
+Hero visual: phone mockup showing Nia search and a provider card (Kiki & Kudi’s Hair Salon — Verified). Add 30s founder video thumbnail.
+
+Core benefits / Value props (3-column)
+
+Smarter matches — Nia finds the right provider for the job, not just the loudest listing.
+
+Verified providers — ID + review checks reduce scams; real profiles, real ratings.
+
+Faster bookings & safer payments — local-friendly payments, confirmations, and reminders.
+
+Microcopy: Built for Nigeria — optimized for local payments (USSD, cards, bank transfer, POS).
+
+Services (what GidiGo does)
+
+AI Matching (Nia) — Describe problem, get matched with the right pro.
+Booking & Scheduling — Confirmed slots, reminders, no more “ghosting.”
+In-app messaging — Chat with provider + Nia assistance.
+Provider tools — Availability, performance, payment reminders, earnings dashboard.
+Payments — In-app payments through Paystack/Flutterwave; offline POS acceptance at xplus.
+
+Small line: “All-in-one app for barbers, plumbers, tutors, electricians, cleaners, and more.”
+
+Features & Capabilities (feature tiles)
+
+AI-powered search & match
+
+Provider verification badges (Verified / Pending)
+
+Direct chat + AI assistant suggestions
+
+In-app secure payments & receipts
+
+Provider dashboard: availability, earnings, performance tracking
+
+Ratings, reviews & dispute flow
+
+CTA after features: Reserve Founder Slot — ₦2,000
+
+Notable artifact (developer-friendly demo)
+
+Embed a tiny sample (illustrative) showing how the MatchAgent picks providers:
+
+// MatchAgent demo (illustrative)
+class MatchAgent {
+  constructor(providers) { this.providers = providers; }
+  score(request, provider) {
+    // simple score: rating * availability * distanceFactor
+    return provider.rating * (provider.available ? 1 : 0.5) * (1 / (1 + provider.distanceKm));
+  }
+  findBest(request) {
+    return this.providers
+      .map(p => ({ p, score: this.score(request, p) }))
+      .sort((a,b) => b.score - a.score)[0].p;
+  }
+}
+
+
+Microcopy: “Simplified demo of the AI matching logic powering Nia — real system uses more signals (history, reliability, payment success).”
+
+Process (3-step)
+
+Tell Nia what you need (text or voice).
+
+Get matched & book — choose time and pay securely.
+
+Rate & repeat — trusted reviews build community reliability.
+
+Callout: “Founders shape Nia — top feedback items become product features.”
+
+Example Providers (tiles)
+
+Kiki & Kudi’s Hair Salon — Verified — Fast, quality fades.
+
+Nedu’s Plumbing — Verified — Emergency repairs & installs.
+
+Emmy’s Maths Tuts — Pending verification — affordable & flexible.
+
+Each tile: photo, 1-line blurb, rating, “Book” disabled for now or “Notify me” CTA.
+
+Case studies / results (placeholders)
+
+Case — Kiki & Kudi’s Hair Salon
+Problem: irregular bookings, too many no-shows.
+Result: +40% consistent bookings in 60 days (founder cohort).
+
+Case — Nedu Plumbing
+Problem: low trust, payment delays.
+Result: On average 25% faster confirmations and 30% fewer cancellations.
+
+(Use real metrics as you collect them; these are placeholders for the template.)
+
+Integrations, Reviews & Social Proof
+
+Integrations: Paystack, Flutterwave, WhatsApp Business, Google Maps (address verification), basic SMS gateway.
+
+Social proof: show small testimonials (2–3)
+
+“Saved me time and money — found a great plumber same day.” — Ada, Lagos
+
+“Founders’ pricing kept my salon alive during slow weeks.” — Kiki
+
+Trust badges: Paystack logo, “xplus store — Ota” map pin, WhatsApp Business badge, “Verified providers” icon.
+
+Pricing (simple, feel-good + Presale)
+
+Founders Presale — ₦2,000 (limited 300)
+
+Priority access, private founders group, lifetime founder price for first year, influence roadmap.
+
+Paylink: {{PAYSTACK_FOUNDERS}}
+
+Beta Access — ₦10,000 (limited 100)
+
+3 months free subscription, priority booking, onboarding session. {{PAYSTACK_BETA}}
+
+Starter — ₦500/month (post-launch)
+
+Basic booking & search, in-app payments.
+
+Pro — ₦2,500/month (for power users/providers)
+
+Provider dashboard, priority placement, performance reports.
+
+Annual billing: save 20% (for future use). Enterprise / business bundles: custom pricing.
+
+Microcopy: “Founder & Beta payments are refundable within 48 hours pre-launch.”
+
+FAQ (short)
+
+Q: How do I pay?
+A: Secure Paystack/Flutterwave pay links — cards, USSD, bank transfer; offline POS at xplus.
+
+Q: What happens after I pay?
+A: Send your Paystack success screenshot to {{WHATSAPP_NUMBER}} → receive Founder Code + WhatsApp invite.
+
+Q: Is my money safe?
+A: Full refund within 48 hours; payments processed via Paystack.
+
+Q: Where will GidiGo operate?
+A: Launching Lagos & Ota first — expanding based on demand.
+
+Q: Can providers join?
+A: Yes — provider onboarding is via the Provider Signup on the site. Verification required.
+
+Competitive positioning (short)
+
+GidiGo emphasizes verified providers + AI matching + local payments — faster bookings and fewer scams than classifieds or messy social DMs.
+
+Team (short bios)
+
+Timi — Founder & Product (phone repair engineer, builder, community roots in Ota)
+
+(Advisor) — AI strategist (placeholder)
+
+(Ops lead) — Local operations & growth (placeholder)
+
+Microcopy: Add real photos later; if not available, add friendly illustrated avatars.
+
+Footer / Legal / Contact
+
+Contact: WhatsApp: {{WHATSAPP_NUMBER}} · Email: hello@gidigo.com (or forwarding)
+Address: xplus store, Ota, Ogun State.
+Legal: “GidiGo is an early-stage product. Founder/beta payments refundable within 48 hours prior to public launch. Terms & Privacy link.”
+
+Remove any “built with Framer” promotional banner or bury it in tiny footnote: “Design (temporary).”
+
+Microcopy & UX notes (must-have behaviors)
+
+CTA hover: “Secure payment — Paystack”
+
+After Paystack success page: show a big bright button “I PAID — send screenshot” that opens WhatsApp chat.
+
+Display Founder slot counter near CTA (manual or small script).
+
+Pin 30s founder video in hero.
+
+Add UTM params to all pay links: ?utm_source=facebook&utm_campaign=founders_v1
