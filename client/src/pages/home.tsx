@@ -19,12 +19,12 @@ import salonImage from '@assets/generated_images/Kiki_Kudi_hair_salon_8bbfd566.p
 import plumberImage from '@assets/generated_images/Nedu_plumbing_professional_54c8ee3a.png';
 import tutorImage from '@assets/generated_images/Emmy_math_tutor_a4f11245.png';
 import founderImage from '@assets/generated_images/Timi_founder_portrait_2371ad92.png';
+import logo from '@assets/gidigo-logo.svg';
 
-const PAYSTACK_FOUNDER = "https://paystack.com/pay/gidigo-founder?utm_source=website&utm_campaign=founders_v1";
-const PAYSTACK_BETA = "https://paystack.com/pay/gidigo-beta?utm_source=website&utm_campaign=founders_v1";
-const WHATSAPP_NUMBER = "+2348012345678";
+const PAYSTACK_FOUNDER = "https://paystack.shop/pay/fw6hofwxac";
+const PAYSTACK_BETA = "https://paystack.shop/pay/fw6hofwxac";
+const WHATSAPP_NUMBER = "+2348144657589";
 const WHATSAPP_INVITE = `https://wa.me/${WHATSAPP_NUMBER}?text=I%20want%20to%20join%20the%20GidiGo%20waitlist`;
-
 const codeString = `class MatchAgent {
   constructor(providers) { 
     this.providers = providers; 
@@ -70,7 +70,7 @@ export default function Home() {
     refetchInterval: 30000,
   });
 
-  const founderSlots = slotData?.founderSlots ?? 247;
+  const founderSlots = (slotData as { founderSlots?: number })?.founderSlots ?? 247;
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -138,10 +138,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">GidiGo</span>
+              <a href="/" className="flex items-center gap-2">
+                <img src={logo} alt="GidiGo Logo" className="w-10 h-10 object-contain" />
+                <span className="text-xl font-bold">GidiGo</span>
+              </a>
             </div>
             
             <div className="hidden md:flex items-center gap-8">
@@ -745,7 +745,6 @@ export default function Home() {
 
           <div className="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-60">
             <div className="text-2xl font-bold text-muted-foreground">Paystack</div>
-            <div className="text-2xl font-bold text-muted-foreground">Flutterwave</div>
             <div className="text-2xl font-bold text-muted-foreground">WhatsApp</div>
             <div className="text-2xl font-bold text-muted-foreground">Google Maps</div>
           </div>
@@ -933,7 +932,7 @@ export default function Home() {
                 How do I pay?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed">
-                Secure Paystack/Flutterwave pay links — cards, USSD, bank transfer; offline POS at xplus.
+                Secure Paystack pay links — cards, USSD, bank transfer; offline POS at xplus.
               </AccordionContent>
             </AccordionItem>
 
@@ -960,7 +959,7 @@ export default function Home() {
                 Where will GidiGo operate?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed">
-                Launching Lagos & Ota first — expanding based on demand.
+                Launching Lagos & Southwestern states first — expanding based on demand.
               </AccordionContent>
             </AccordionItem>
 
@@ -989,7 +988,7 @@ export default function Home() {
                 <img src={founderImage} alt="Timi - Founder & Product" className="w-full h-full object-cover" />
               </div>
               <h3 className="text-xl font-bold mb-1">Timi</h3>
-              <p className="text-sm text-muted-foreground mb-3">Founder & Product</p>
+              <p className="text-sm text-muted-foreground mb-3">Founder & Product Lead</p>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Phone repair engineer, builder, community roots in Ota
               </p>
@@ -1100,10 +1099,10 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-12 mb-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <span className="text-xl font-bold">GidiGo</span>
+                <a href="/" className="flex items-center gap-2">
+                  <img src={logo} alt="GidiGo Logo" className="w-10 h-10 object-contain" />
+                  <span className="text-xl font-bold">GidiGo</span>
+                </a>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 AI-powered access to trusted local services. Built for Nigeria.
@@ -1141,7 +1140,7 @@ export default function Home() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>WhatsApp: {WHATSAPP_NUMBER}</li>
                 <li>Email: hello@gidigo.com</li>
-                <li>Address: xplus store, Ota, Ogun State</li>
+                <li>Address: Sango Ota, Ogun State</li>
               </ul>
             </div>
           </div>

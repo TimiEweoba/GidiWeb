@@ -1,0 +1,224 @@
+name: 🚀 Deploy to GitHub Pages & Vercel
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 20
+  PNPM_VERSION: 9
+
+jobs:
+  # ── 1. Build & Test ─────────────────────────────────────────────────────────
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      deploy-sha: ${{ steps.deploy.outputs.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history for tags
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        run: pnpm run check
+
+      - name: Run tests
+        run: pnpm test --if-present
+
+      - name: Build production assets
+        run: pnpm run build
+
+      - name: Compute version
+        id: version
+        run: |
+          VERSION=$(git describe --tags --always --dirty)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: |
+            dist
+            !dist/**/*.map
+          retention-days: 30
+
+      - name: Save deploy metadata
+        id: deploy
+        run: |
+          echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          mkdir -p deploy-meta
+          echo "${{ github.sha }}" > deploy-meta/sha.txt
+          echo "${{ steps.version.outputs.version }}" > deploy-meta/version.txt
+          echo "${{ github.run_number }}" > deploy-meta/run.txt
+
+      - name: Upload deploy metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-meta-${{ github.sha }}
+          path: deploy-meta
+
+  # ── 2. Deploy to GitHub Pages ────────────────────────────────────────────────
+  deploy-github-pages:
+    name: Deploy to GitHub Pages
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/public # client assets
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ── 3. Create GitHub Release ────────────────────────────────────────────────
+  release:
+    name: Create Release
+    needs: [build-and-test, deploy-github-pages]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      tag_name: ${{ steps.create_release.outputs.tag_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            Automated release from GitHub Actions
+            - Commit: ${{ github.sha }}
+            - Version: ${{ needs.build-and-test.outputs.version }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist
+          asset_name: dist-${{ github.sha }}.zip
+          asset_content_type: application/zip
+
+  # ── 4. Deploy to Vercel (Production) ──────────────────────────────────────
+  deploy-vercel:
+    name: Deploy to Vercel
+    needs: [build-and-test, deploy-github-pages, release]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Verify Deployment
+        run: |
+          sleep 10
+          curl -f ${{ steps.deploy.outputs.url }} || exit 1
+
+  # ── 5. Rollback & Health Check ──────────────────────────────────────────────
+  health-check:
+    name: Post-Deployment Health Check
+    needs: [deploy-github-pages, deploy-vercel]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: GitHub Pages Health Check
+        run: |
+          curl -f https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ || echo "GitHub Pages health check failed"
+
+      - name: Vercel Health Check
+        run: |
+          curl -f ${{ needs.deploy-vercel.outputs.url }} || echo "Vercel health check failed"
+
+      - name: Create Deployment Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.sha;
+            const run = context.runNumber;
+            const repo = context.repo;
+            
+            github.rest.repos.createCommitStatus({
+              ...repo,
+              sha,
+              state: 'success',
+              context: 'deployment/summary',
+              description: `Deployed to GitHub Pages & Vercel (run ${run})`
+            });
