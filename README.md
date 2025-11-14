@@ -1,4 +1,4 @@
-# FramerReplicate
+# GidiGo Website
 
 ## Overview
 
