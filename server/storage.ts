@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type SlotCounter } from "@shared/schema";
+import { type User, type InsertUser, type SlotCounter, type WaitlistEntry, type InsertWaitlist } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -7,14 +7,17 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   getSlotCounter(): Promise<SlotCounter>;
   updateSlotCounter(slots: Partial<SlotCounter>): Promise<SlotCounter>;
+  addToWaitlist(insertWaitlist: InsertWaitlist): Promise<WaitlistEntry>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
+  private waitlist: Map<string, WaitlistEntry>;
   private slotCounter: SlotCounter;
 
   constructor() {
     this.users = new Map();
+    this.waitlist = new Map();
     this.slotCounter = {
       founderSlots: 247,
       betaSlots: 83,
@@ -45,6 +48,17 @@ export class MemStorage implements IStorage {
   async updateSlotCounter(slots: Partial<SlotCounter>): Promise<SlotCounter> {
     this.slotCounter = { ...this.slotCounter, ...slots };
     return { ...this.slotCounter };
+  }
+
+  async addToWaitlist(insertWaitlist: InsertWaitlist): Promise<WaitlistEntry> {
+    const id = randomUUID();
+    const entry: WaitlistEntry = {
+      id,
+      ...insertWaitlist,
+      createdAt: new Date().toISOString()
+    };
+    this.waitlist.set(id, entry);
+    return entry;
   }
 }
 
