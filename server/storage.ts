@@ -54,7 +54,11 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const entry: WaitlistEntry = {
       id,
-      ...insertWaitlist,
+      email: insertWaitlist.email,
+      utmSource: insertWaitlist.utmSource ?? null,
+      utmMedium: insertWaitlist.utmMedium ?? null,
+      utmCampaign: insertWaitlist.utmCampaign ?? null,
+      recruiterCode: insertWaitlist.recruiterCode ?? null,
       createdAt: new Date().toISOString()
     };
     this.waitlist.set(id, entry);
