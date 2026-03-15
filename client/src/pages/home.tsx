@@ -466,7 +466,7 @@ export default function Home() {
                 Check your inbox soon. We'll send an exclusive invite when we open the doors.
               </p>
               <Button
-                variant="link"
+                variant="ghost"
                 onClick={() => setIsSuccess(false)}
                 className="text-white/30 hover:text-white transition-colors"
               >
