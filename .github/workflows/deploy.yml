@@ -25,28 +25,23 @@ jobs:
         with:
           fetch-depth: 0 # full history for tags
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          cache: npm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm install
 
       - name: Type-check
-        run: pnpm run check
+        run: npm run check
 
       - name: Run tests
-        run: pnpm test --if-present
+        run: npm test --if-present
 
       - name: Build production assets
-        run: pnpm run build
+        run: npm run build
 
       - name: Compute version
         id: version
@@ -162,6 +157,8 @@ jobs:
     name: Deploy to Vercel
     needs: [build-and-test, deploy-github-pages, release]
     runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
     environment:
       name: production
       url: ${{ steps.deploy.outputs.url }}
