@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GidiGo — Lagos Chess Community</title>
+  <link rel="icon" href="public/landing/hero-fallback.svg" type="image/svg+xml">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* CSS Variables & Reset */
+    :root {
+      --bg: #0d1117;
+      --surface: #131a22;
+      --green-accent: #22c55e;
+      --green-dim: #16a34a;
+      --green-mute: #0d3320;
+      --white: #eef2f7;
+      --muted: rgba(238, 242, 247, 0.45);
+      --border: rgba(238, 242, 247, 0.07);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--white);
+      font-family: 'DM Mono', monospace;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Background Texture */
+    .bg-texture {
+      position: fixed;
+      inset: 0;
+      background-image: repeating-conic-gradient(rgba(255,255,255,0.015) 0% 25%, transparent 0% 50%);
+      background-size: 48px 48px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Three.js Canvas container */
+    #three-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    /* Typography */
+    h1, h2, h3, .syne {
+      font-family: 'Syne', sans-serif;
+    }
+    
+    .green { color: var(--green-accent); }
+    .muted { color: var(--muted); }
+    
+    /* Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+    }
+
+    /* Sections */
+    section {
+      padding: 100px 0;
+      position: relative;
+    }
+    
+    .section-tag {
+      text-transform: uppercase;
+      color: var(--muted);
+      font-size: 0.875rem;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+      display: block;
+    }
+
+    /* Navbar */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      padding: 24px 0;
+      transition: background-color 0.3s, backdrop-filter 0.3s;
+    }
+    nav.scrolled {
+      background-color: rgba(13, 17, 23, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--green-accent);
+      text-decoration: none;
+    }
+    .nav-center {
+      display: none;
+    }
+    @media (min-width: 768px) {
+      .nav-center {
+        display: block;
+        color: var(--muted);
+        font-size: 0.875rem;
+      }
+    }
+    
+    /* Buttons */
+    .btn {
+      background-color: var(--green-accent);
+      color: #000;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+    .btn:hover {
+      background-color: var(--green-dim);
+      transform: translateY(-1px);
+    }
+    .btn-submit {
+      padding: 16px 32px;
+      font-size: 1rem;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 80px;
+    }
+    .hero-panel {
+      background: rgba(19, 26, 34, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      padding: 48px;
+      border-radius: 16px;
+      max-width: 800px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--green-accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    .hero h1 .word {
+      display: inline-block;
+      opacity: 0;
+    }
+    .hero h1 .lagos {
+      color: rgba(238, 242, 247, 0.18);
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--muted);
+      max-width: 600px;
+      margin-bottom: 48px;
+      line-height: 1.6;
+    }
+    
+    /* Form */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (min-width: 600px) {
+      .form-group {
+        flex-direction: row;
+      }
+    }
+    input[type="email"] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--white);
+      padding: 16px 24px;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 1rem;
+      flex: 1;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="email"]:focus {
+      border-color: var(--green-accent);
+    }
+    .form-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .success-msg {
+      display: none;
+      color: var(--green-accent);
+      background: var(--green-mute);
+      padding: 16px 24px;
+      border-radius: 4px;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    /* What is GidiGo */
+    .about-text {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      line-height: 1.4;
+      font-weight: 400;
+      max-width: 900px;
+    }
+
+    /* Pillars */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-top: 48px;
+    }
+    @media (min-width: 768px) {
+      .pillars-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .pillar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 40px 32px;
+      border-radius: 8px;
+      transition: box-shadow 0.3s;
+    }
+    .pillar:hover {
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.3);
+    }
+    .pillar-glyph {
+      font-size: 2.5rem;
+      color: var(--green-accent);
+      margin-bottom: 24px;
+    }
+    .pillar h3 {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+    .pillar p {
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    /* Challenge */
+    .challenge-section {
+      background: linear-gradient(135deg, rgba(34,197,94,0.05) 0%, var(--surface) 40%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 64px 32px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+    @media (min-width: 768px) {
+      .challenge-section {
+        flex-direction: row;
+        align-items: center;
+        padding: 80px 64px;
+      }
+    }
+    .challenge-decor {
+      position: absolute;
+      bottom: -20px;
+      right: 20px;
+      font-size: 12rem;
+      color: rgba(34,197,94,0.03);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .challenge-left {
+      flex: 1;
+    }
+    .challenge-amount {
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 800;
+      color: var(--green-accent);
+      line-height: 1;
+      font-family: 'Syne', sans-serif;
+    }
+    .challenge-right {
+      flex: 1.5;
+    }
+    .challenge-right h3 {
+      font-size: clamp(2rem, 4vw, 2.5rem);
+      margin-bottom: 24px;
+    }
+    .challenge-right p {
+      color: var(--muted);
+      font-size: 1.125rem;
+    }
+
+    /* Who is this for */
+    .audience-text {
+      font-size: clamp(1.25rem, 2vw, 1.5rem);
+      line-height: 1.6;
+      max-width: 800px;
+      margin-bottom: 32px;
+    }
+    .audience-closing {
+      font-style: italic;
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+    }
+
+    /* How it unfolds */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .step {
+      display: flex;
+      gap: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .step-num {
+      color: var(--green-accent);
+      font-weight: 500;
+      font-size: 1.25rem;
+    }
+    .step-content strong {
+      display: block;
+      color: var(--white);
+      margin-bottom: 8px;
+      font-size: 1.125rem;
+    }
+    .step-content p {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 0;
+      margin-top: 100px;
+    }
+    .footer-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    @media (min-width: 600px) {
+      .footer-inner {
+        flex-direction: row;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="bg-texture"></div>
+  <canvas id="three-canvas"></canvas>
+
+  <nav id="nav">
+    <div class="container nav-inner">
+      <a href="#" class="logo" style="display: flex; align-items: center; gap: 8px;">
+        <img src="public/landing/hero-fallback.svg" alt="GidiGo Icon" style="height: 24px; width: 24px;">
+        GidiGo
+      </a>
+      <div class="nav-center">Lagos &middot; Chess &middot; Community</div>
+      <a href="#waitlist" class="btn">Join waitlist</a>
+    </div>
+  </nav>
+
+  <header class="hero container">
+    <div class="hero-panel">
+      <div class="badge id-hero-badge">
+        <div class="pulse-dot"></div>
+        <span>Coming soon &middot; gidigo.online</span>
+      </div>
+      <h1 class="syne" id="hero-headline">
+        <div class="word green">Make</div> <div class="word green">your</div><br/>
+        <div class="word">move,</div><br/>
+        <div class="word lagos">Lagos.</div>
+      </h1>
+      <p class="hero-sub id-hero-sub">
+        A living 3D map of Lagos where chess is the heartbeat. Clubs rise. Neighborhoods pulse. The city lights up wherever the game is being played &mdash; in real time.
+      </p>
+      
+      <div id="waitlist" class="id-hero-form">
+        <form id="waitlist-form">
+          <div class="form-group">
+            <input type="email" placeholder="Enter your email" required />
+            <button type="submit" class="btn btn-submit">Join the board &rarr;</button>
+          </div>
+          <p class="form-note">No spam. Just your move when it's ready.</p>
+        </form>
+        <div class="success-msg" id="success-msg">
+          &pawn; You're on the board. We'll reach out when it's time.
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="container gs-reveal">
+    <span class="section-tag">What is GidiGo?</span>
+    <p class="about-text" id="about-text">
+      Chess has always been played in Lagos &mdash; in canteens, on campuses, under bridges. GidiGo makes that <span class="green">visible for the first time</span>. A city-wide game, alive in real time.
+    </p>
+  </section>
+
+  <section class="container">
+    <div class="pillars-grid">
+      <div class="pillar gs-stagger">
+        <div class="pillar-glyph">&pawn;</div>
+        <h3 class="syne">Play</h3>
+        <p>Challenge anyone. Anywhere in Lagos. Online or face-to-face.</p>
+      </div>
+      <div class="pillar gs-stagger">
+        <div class="pillar-glyph">&#128506;</div>
+        <h3 class="syne">Explore</h3>
+        <p>Navigate a live 3D Lagos. See where the game is alive right now.</p>
+      </div>
+      <div class="pillar gs-stagger">
+        <div class="pillar-glyph">&#9733;</div>
+        <h3 class="syne">Build</h3>
+        <p>Sponsor a child. Fund a club. Put your neighborhood on the map.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container gs-reveal">
+    <div class="challenge-section">
+      <div class="challenge-decor">&#9818;</div>
+      <div class="challenge-left">
+        <div class="challenge-amount">&#8358;<span id="counter">0</span></div>
+      </div>
+      <div class="challenge-right">
+        <h3 class="syne">Find us on campus. Beat us. Win.</h3>
+        <p>Coming to universities across Nigeria &mdash; look for the t-shirt. Sit down. Make your move. Walk away with &#8358;1,000 if you win.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container gs-reveal">
+    <span class="section-tag">Who is this for?</span>
+    <p class="audience-text">
+      GidiGo is for chess players who want a real home. For Nigerian youth who've never touched the board but are ready. For tech-savvy Nigerians who want a community that thinks as hard as they do.
+    </p>
+    <p class="audience-closing syne green">
+      Chess is the entrance. The platform is bigger.
+    </p>
+  </section>
+
+  <section class="container">
+    <span class="section-tag gs-reveal">How it unfolds</span>
+    <div class="steps-list">
+      <div class="step gs-step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <strong>The campus challenge</strong>
+          <p>We show up. You play. The city watches. The community begins.</p>
+        </div>
+      </div>
+      <div class="step gs-step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <strong>The platform launches</strong>
+          <p>Play, challenge, build your club. The 3D Lagos map goes live.</p>
+        </div>
+      </div>
+      <div class="step gs-step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <strong>The community takes over</strong>
+          <p>Forums. Tournaments. Scholarships. Rivalries. Lagos, animated by chess.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-inner">
+      <div class="syne green" style="font-weight: 800; font-size: 1.25rem;">GidiGo.online</div>
+      <div class="muted" style="font-size: 0.875rem;">Lagos, Nigeria / Built by Veriable Studio</div>
+    </div>
+  </footer>
+</body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script>
+    // FORM LOGIC
+    const waitlistForm = document.getElementById('waitlist-form');
+    const emailInput = waitlistForm.querySelector('input[type="email"]');
+    const submitBtn = waitlistForm.querySelector('button[type="submit"]');
+
+    waitlistForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const originalText = submitBtn.innerText;
+      submitBtn.innerText = "Sending...";
+      submitBtn.disabled = true;
+
+      try {
+        await fetch("https://formsubmit.co/ajax/timileyineweobaja@gmail.com", {
+            method: "POST",
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: emailInput.value,
+                _subject: "New Waitlist Signup request for GidiGo!",
+                _autoresponse: "Thank you for joining the GidiGo waitlist. We will reach out when it's time to make your move.",
+            })
+        });
+
+        // Hide form and show success message
+        waitlistForm.style.display = 'none';
+        document.getElementById('success-msg').style.display = 'block';
+      } catch (error) {
+        console.error("Submission failed.", error);
+        submitBtn.innerText = "Failed. Try again.";
+        submitBtn.disabled = false;
+      }
+    });
+
+    // GSAP ANIMATIONS
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Nav frosted glass effect on scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 60) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+
+    // Page Load Timeline
+    const tl = gsap.timeline();
+    tl.from('#nav', { y: -20, opacity: 0, duration: 1, ease: 'power3.out' })
+      .from('.id-hero-badge', { y: 20, opacity: 0, duration: 0.8, ease: 'back.out(1.7)' }, "-=0.6")
+      .from('#hero-headline .word', { y: 30, opacity: 0, stagger: 0.15, duration: 0.8, ease: 'power3.out' }, "-=0.4")
+      .from('.id-hero-sub', { y: 20, opacity: 0, duration: 0.8, ease: 'power2.out' }, "-=0.4")
+      .from('.id-hero-form', { y: 20, opacity: 0, duration: 0.8, ease: 'power2.out' }, "-=0.6");
+
+    // Scroll Revelations
+    gsap.utils.toArray('.gs-reveal').forEach(elem => {
+      gsap.from(elem, {
+        scrollTrigger: {
+          trigger: elem,
+          start: "top 85%",
+          once: true
+        },
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power2.out'
+      });
+    });
+
+    // Pillars Stagger
+    gsap.from('.gs-stagger', {
+      scrollTrigger: {
+        trigger: '.pillars-grid',
+        start: "top 80%",
+        once: true
+      },
+      y: 40,
+      opacity: 0,
+      stagger: 0.2,
+      duration: 0.8,
+      ease: 'power2.out'
+    });
+
+    // Strategy Steps Stagger
+    gsap.from('.gs-step', {
+      scrollTrigger: {
+        trigger: '.steps-list',
+        start: "top 80%",
+        once: true
+      },
+      x: -30,
+      opacity: 0,
+      stagger: 0.2,
+      duration: 0.8,
+      ease: 'power2.out'
+    });
+
+    // Counter
+    const counterElem = document.getElementById('counter');
+    ScrollTrigger.create({
+      trigger: '.challenge-section',
+      start: 'top 75%',
+      once: true,
+      onEnter: () => {
+        gsap.to({val: 0}, {
+          val: 1000,
+          duration: 2,
+          ease: 'power3.out',
+          onUpdate: function() {
+            counterElem.innerText = this.targets()[0].val.toFixed(0);
+          }
+        });
+      }
+    });
+
+    // THREE.JS SCENE (Abstract Lagos Cityscape)
+    const initThree = () => {
+      const canvas = document.getElementById('three-canvas');
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x0d1117, 0.003); // match bg color
+
+      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+      camera.position.set(0, 100, 150);
+      camera.lookAt(0, 0, 0);
+
+      const cityGroup = new THREE.Group();
+      scene.add(cityGroup);
+
+      // detect low-end devices
+      const isLowEnd = (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) || window.innerWidth < 768;
+      const numBuildings = isLowEnd ? 100 : 300;
+      
+      const geometry = new THREE.BoxGeometry(1, 1, 1);
+      geometry.translate(0, 0.5, 0);
+
+      const activeClubs = [];
+
+      // Create abstract city grid
+      for (let i = 0; i < numBuildings; i++) {
+        // Most buildings are dark, a few have emissive green.
+        const isClub = Math.random() < 0.05; 
+        
+        const material = new THREE.MeshLambertMaterial({
+          color: 0x131a22, // surface color
+          emissive: isClub ? 0x22c55e : 0x000000,
+          emissiveIntensity: isClub ? 0.3 : 0,
+        });
+
+        const building = new THREE.Mesh(geometry, material);
+        
+        // Random placement in a circle
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 120;
+        
+        building.position.x = Math.cos(angle) * radius;
+        building.position.z = Math.sin(angle) * radius;
+        
+        // Random height
+        const height = Math.random() * 15 + (Math.random() < 0.1 ? 25 : 5); // few tall buildings
+        building.scale.set(3 + Math.random()*2, height, 3 + Math.random()*2);
+
+        cityGroup.add(building);
+
+        if (isClub) {
+          activeClubs.push({
+            mesh: building,
+            offset: Math.random() * Math.PI * 2,
+            speed: 1 + Math.random() * 2
+          });
+        }
+      }
+
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+      scene.add(ambientLight);
+      
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+      dirLight.position.set(50, 100, 50);
+      scene.add(dirLight);
+
+      // Stars/Particles
+      const starsGeometry = new THREE.BufferGeometry();
+      const starsCount = 500;
+      const posArray = new Float32Array(starsCount * 3);
+      for(let i=0; i<starsCount*3; i++){
+        posArray[i] = (Math.random() - 0.5) * 400;
+      }
+      starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+      const starsMaterial = new THREE.PointsMaterial({
+        size: 1,
+        color: 0xeef2f7,
+        transparent: true,
+        opacity: 0.3
+      });
+      const starsMesh = new THREE.Points(starsGeometry, starsMaterial);
+      starsMesh.position.y = 50;
+      scene.add(starsMesh);
+
+      // Resize handler
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Animation Loop
+      const clock = new THREE.Clock();
+      const animate = () => {
+        requestAnimationFrame(animate);
+        const elapsedTime = clock.getElapsedTime();
+
+        // Slow calm rotation
+        cityGroup.rotation.y = elapsedTime * 0.05;
+        starsMesh.rotation.y = elapsedTime * 0.01;
+
+        // Pulse emissive active clubs
+        activeClubs.forEach(club => {
+          club.mesh.material.emissiveIntensity = 0.3 + Math.sin(elapsedTime * club.speed + club.offset) * 0.3;
+        });
+
+        renderer.render(scene, camera);
+      };
+      animate();
+
+      // Scroll-driven camera tilt with GSAP
+      gsap.to(camera.position, {
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1
+        },
+        y: 40,
+        z: 80,
+        ease: "none"
+      });
+      
+      gsap.to(camera.rotation, {
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1
+        },
+        x: -0.2,
+        ease: "none"
+      });
+    };
+
+    // Ensure DOM is loaded
+    window.addEventListener('DOMContentLoaded', initThree);
+  </script>
+</html>
