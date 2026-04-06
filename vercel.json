@@ -1,21 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "framework": "vite",
-  "outputDirectory": "dist/public",
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.ts"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "framework": null,
+  "buildCommand": "echo 'Skipping build - Vanilla HTML'",
+  "installCommand": "echo 'Skipping install - Vanilla HTML'",
+  "outputDirectory": "."
 }
